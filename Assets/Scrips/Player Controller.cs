@@ -3,6 +3,7 @@ using NUnit.Framework;
 using TMPro;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.InputSystem.XR;
 using UnityEngine.SocialPlatforms.Impl;
 using UnityEngine.UI;
 
@@ -11,7 +12,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float moveSpeed = 5f;  // Tốc độ di chuyển của đầu rắn
     [SerializeField] float steerSpeed = 180f; // Tốc độ xoay của đầu rắn
 
-    public int Gap;  // Khoảng cách giữa các phần thân rắn
+    public int Gap = 30;  // Khoảng cách giữa các phần thân rắn
 
     public GameObject bodyPrefab;  // Prefab của phần thân rắn
 
@@ -23,15 +24,20 @@ public class PlayerController : MonoBehaviour
 
     public FoodSpawner foodSpawner;
 
+    public Canvas gameOverCanvas;
+
     private int Score;
-    public Text score;
+    public Text scoreInGame;
+    public Text scoreTextGameOver;
 
     private void Start()
     {
-        for(int i = 0; i < 10; i++)
+        for(int i = 0; i < 2; i++)
         {
             GrowSnake();
         }
+
+        gameOverCanvas.enabled = false;
     }
 
     private void Update()
@@ -59,7 +65,10 @@ public class PlayerController : MonoBehaviour
             index++;
         }
 
-        score.text = Score.ToString();
+        scoreInGame.text = Score.ToString();
+        scoreTextGameOver.text = "Score: " + Score;
+
+        
     }
 
     // Hàm điều khiển di chuyển đầu rắn
@@ -81,7 +90,6 @@ public class PlayerController : MonoBehaviour
         // Thêm một phần thân mới vào cuối danh sách BodyParts
         GameObject body = Instantiate(bodyPrefab);
         body.transform.position = BodyParts.Count > 0 ? BodyParts[BodyParts.Count - 1].transform.position : transform.position;
-
 
         // Gắn phần thân mới vào cuối danh sách
         BodyParts.Add(body);
@@ -111,13 +119,46 @@ public class PlayerController : MonoBehaviour
             body.SetActive(false);  // Tắt phần thân
         }
 
-        /*// Xóa phần thân khỏi danh sách BodyParts
-        BodyParts.Clear();
-*/
         // Gọi FoodSpawner để tạo thức ăn
         if (foodSpawner != null)
         {
             foodSpawner.CreateFoodFromBodyParts(BodyParts);
+            
         }
+
+        // Xóa phần thân khỏi danh sách BodyParts
+        BodyParts.Clear();
+
+        gameOverCanvas.enabled = true;
+        
+
+        Time.timeScale = 0f;  // Dừng thời gian (pause game)
+        
     }
+
+    public void RestartPlayer()
+    {
+        // Reset Player (Xóa phần thân, đặt lại điểm số và vị trí)
+        foreach (var body in BodyParts)
+        {
+            DestroyImmediate(body);  // Xóa các phần thân
+        }
+
+        PositionHistory.Clear();
+        BodyParts.Clear();
+
+        transform.position = new Vector3(5, 0.5f, 5);  // Đặt lại vị trí đầu rắn
+        transform.rotation = Quaternion.identity;  // Đặt lại xoay đầu rắn về 0 độ
+        Score = 0;  // Reset điểm số
+
+        // Tạo lại các phần thân rắn
+        for (int i = 0; i < 2; i++)
+        {
+            GrowSnake();
+        }
+
+        // Cập nhật lại UI Score nếu cần
+        scoreTextGameOver.text = "Score: " + Score;
+    }
+
 }

@@ -8,7 +8,7 @@ public class FoodSpawner : MonoBehaviour
     public Vector3 spawnAreaMin = new Vector3(-10, 0, -10); // Góc dưới trái khu vực spawn
     public Vector3 spawnAreaMax = new Vector3(10, 0, 10); // Góc trên phải khu vực spawn
 
-    private List<GameObject> foodPool = new List<GameObject>(); // Danh sách chứa thức ăn tái sử dụng
+    public List<GameObject> foodPool = new List<GameObject>(); // Danh sách chứa thức ăn tái sử dụng
 
     private void Start()
     {
@@ -59,13 +59,31 @@ public class FoodSpawner : MonoBehaviour
         {
             // Lấy vị trí ngẫu nhiên trong các phần thân
             int index = Random.Range(0, bodyParts.Count);
-            Debug.Log(index);
+            
             Vector3 foodPosition = bodyParts[index].transform.position;
-            Debug.Log(foodPosition);
+            
             // Tạo thức ăn tại vị trí đó
             GameObject food = Instantiate(foodPrefab, foodPosition, Quaternion.identity);
+            foodPool.Add(food);
             food.tag = "Food"; // Gán tag cho thức ăn
         }
     }
+
+    public void ResetFood()
+    {
+        // Tắt tất cả thức ăn hiện tại
+        foreach (var food in foodPool)
+        {
+            Destroy(food);
+        }
+        foodPool.Clear();  // Xóa danh sách thức ăn cũ
+
+        // Tạo lại thức ăn mới
+        for (int i = 0; i < foodCount; i++)
+        {
+            SpawnNewFood();
+        }
+    }
+
 }
 

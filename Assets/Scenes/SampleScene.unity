@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &20760380
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 20760381}
+  m_Layer: 0
+  m_Name: GameController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &20760381
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 20760380}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -2.1323307, y: 4.4514465, z: 4.6913605}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &158829659
 GameObject:
   m_ObjectHideFlags: 0
@@ -206,7 +237,7 @@ MonoBehaviour:
   fixedHeight: 0.5
   foodSpawner: {fileID: 1565077380}
   bodyPrefab: {fileID: 5459464715258491765, guid: a2e46f76c3a60eb438aa7a7f531e7d35, type: 3}
-  Gap: 20
+  Gap: 30
 --- !u!23 &158829663
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -595,9 +626,9 @@ GameObject:
   - component: {fileID: 405250412}
   - component: {fileID: 405250411}
   - component: {fileID: 405250410}
-  - component: {fileID: 405250409}
   - component: {fileID: 405250408}
   - component: {fileID: 405250413}
+  - component: {fileID: 405250415}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -626,24 +657,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &405250409
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 405250407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c07cf7087a5b1746ac4c59e9ef821a0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  steerSpeed: 180
-  Gap: 20
-  bodyPrefab: {fileID: 7205465098850794597, guid: 4ba6e8c67fb83224598343ba6c6d7932, type: 3}
-  foodSpawner: {fileID: 1565077380}
-  score: {fileID: 2145308356}
 --- !u!23 &405250410
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -740,6 +753,26 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!114 &405250415
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 405250407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c07cf7087a5b1746ac4c59e9ef821a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  steerSpeed: 180
+  Gap: 30
+  bodyPrefab: {fileID: 7205465098850794597, guid: 4ba6e8c67fb83224598343ba6c6d7932, type: 3}
+  foodSpawner: {fileID: 1565077380}
+  gameOverCanvas: {fileID: 1853123280}
+  scoreInGame: {fileID: 2145308356}
+  scoreTextGameOver: {fileID: 252298338}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -928,7 +961,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &974261408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1236,7 +1269,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1853123278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1402,7 +1435,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1927315279}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 405250415}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: Restart
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1927315279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1690,3 +1735,4 @@ SceneRoots:
   - {fileID: 1565077379}
   - {fileID: 158829665}
   - {fileID: 1853123281}
+  - {fileID: 20760381}

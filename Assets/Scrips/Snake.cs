@@ -4,16 +4,26 @@ using UnityEngine;
 public class Snake : MonoBehaviour
 {
     [SerializeField] protected float moveSpeed = 5f;
-    [SerializeField] protected float steerSpeed = 100f;
+    [SerializeField] protected float steerSpeed = 180f;
     [SerializeField] protected float fixedHeight = 0.5f;
+
+    // Thêm khai báo bodyPrefab ở đây
+    [SerializeField] protected GameObject bodyPrefab; // Prefab của phần thân rắn
 
     protected List<GameObject> BodyParts = new List<GameObject>();
     protected List<Vector3> PositionHistory = new List<Vector3>();
     protected GameObject targetFood;
 
     // Tạo các phần thân rắn
-    public virtual void GrowSnake(GameObject bodyPrefab)
+    public virtual void GrowSnake()
     {
+        // Kiểm tra nếu bodyPrefab chưa được gán
+        if (bodyPrefab == null)
+        {
+            Debug.LogError("bodyPrefab chưa được gán cho Snake!");
+            return;
+        }
+
         GameObject body = Instantiate(bodyPrefab);
         body.transform.position = BodyParts.Count > 0 ? BodyParts[BodyParts.Count - 1].transform.position : transform.position;
         body.transform.parent = transform;
@@ -28,18 +38,10 @@ public class Snake : MonoBehaviour
         transform.position = newPosition;
     }
 
-    // Kiểm tra va chạm với cơ thể của chính mình hoặc của rắn khác
-    protected virtual void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.CompareTag("Food"))
-        {
-            GrowSnake(other.gameObject);
-        }
-    }
-
-    // Cập nhật vị trí các phần thân
+    // Cập nhật lịch sử và phần thân
     public void UpdateBodyParts()
     {
+        PositionHistory.Insert(0, transform.position);
         int index = 0;
         foreach (var body in BodyParts)
         {
@@ -48,6 +50,15 @@ public class Snake : MonoBehaviour
             body.transform.position = Vector3.Lerp(body.transform.position, point, moveSpeed * Time.deltaTime);
             body.transform.rotation = Quaternion.Slerp(body.transform.rotation, Quaternion.LookRotation(point - body.transform.position), steerSpeed * Time.deltaTime);
             index++;
+        }
+    }
+
+    // Kiểm tra va chạm với thức ăn hoặc cơ thể
+    protected virtual void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.CompareTag("Food"))
+        {
+            GrowSnake();
         }
     }
 }
