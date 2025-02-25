@@ -7,6 +7,8 @@ TagManager:
   - Food
   - Enemy
   - Body
+  - Body Enemy
+  - SnakeBody
   layers:
   - Default
   - TransparentFX

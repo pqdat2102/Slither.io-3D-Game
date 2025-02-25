@@ -2,44 +2,50 @@
 
 public class GameController : MonoBehaviour
 {
-    public PlayerController playerController;  // Tham chiếu đến PlayerController
-    public AISnakeController aiSnakeController;    // Tham chiếu đến EnemyController
-    public FoodSpawner foodSpawner;            // Tham chiếu đến FoodSpawner
-
-    public Canvas gameOverCanvas;              // Canvas Game Over
+    public SnakePlayerController playerController;
+    public SnakeAISpawner aiSnakeSpawner;
+    public FoodSpawner foodSpawner;
+    public Canvas gameOverCanvas;
 
     private void Start()
     {
-        // Đảm bảo canvas Game Over ban đầu bị ẩn
         gameOverCanvas.enabled = false;
     }
 
-    // Hàm Restart để reset game
     public void RestartGame()
     {
-        // Đặt lại thời gian
         Time.timeScale = 1f;
-
-        // Tắt canvas Game Over
         gameOverCanvas.enabled = false;
 
         // Reset player
-        playerController.RestartPlayer();
+        if (playerController != null)
+        {
+            playerController.RestartPlayer();
+        }
 
-        // Reset enemies
-        aiSnakeController.ResetAI();
+        // Reset AI Snakes - xóa hoàn toàn và tạo lại
+        if (aiSnakeSpawner != null)
+        {
+            aiSnakeSpawner.ResetAI();
+        }
 
-        // Reset food
-        foodSpawner.ResetFood();
+        // Reset food - xóa hoàn toàn và tạo lại
+        if (foodSpawner != null)
+        {
+            foodSpawner.ResetFood();
+        }
+
+        // Đảm bảo HighScoreTable được reset hoặc cập nhật lại tham chiếu
+        HighScoreTable highScoreTable = FindFirstObjectByType<HighScoreTable>();
+        if (highScoreTable != null)
+        {
+            highScoreTable.Start(); // Gọi lại Start để tìm lại các tham chiếu
+        }
     }
 
-    // Hàm gọi khi người chơi chết
     public void GameOver()
     {
-        // Dừng thời gian (pause game)
         Time.timeScale = 0f;
-
-        // Hiển thị canvas Game Over
         gameOverCanvas.enabled = true;
     }
 }

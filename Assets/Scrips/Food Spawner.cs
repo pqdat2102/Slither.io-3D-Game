@@ -1,41 +1,110 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class FoodSpawner : MonoBehaviour
 {
-    public GameObject foodPrefab; // Prefab của thức ăn
-    public int foodCount = 5; // Số lượng thức ăn tối đa xuất hiện cùng lúc
-    public Vector3 spawnAreaMin = new Vector3(-10, 0, -10); // Góc dưới trái khu vực spawn
-    public Vector3 spawnAreaMax = new Vector3(10, 0, 10); // Góc trên phải khu vực spawn
+    public GameObject foodPrefab;      // Prefab của Food
+    public int initialPoolSize = 20;    // Số lượng food ban đầu
+    public Vector3 spawnAreaMin = new Vector3(-50, 0, -50);  // Vùng spawn min
+    public Vector3 spawnAreaMax = new Vector3(50, 0, 50);   // Vùng spawn max
 
-    public List<GameObject> foodPool = new List<GameObject>(); // Danh sách chứa thức ăn tái sử dụng
+    private List<GameObject> foodPool = new List<GameObject>();  // Pool chứa thông tin của các food được tạo
 
-    private void Start()
+    void Start()
     {
-        for (int i = 0; i < foodCount; i++)
+        // Tạo và thêm các food vào pool khi game bắt đầu
+        for (int i = 0; i < initialPoolSize; i++)
         {
-            SpawnNewFood();
+            GameObject food = Instantiate(foodPrefab);
+            food.SetActive(false);  // Tắt food ngay khi tạo
+            foodPool.Add(food);
+        }
+
+        // Spawn food ngay khi game bắt đầu
+        for (int i = 0; i < initialPoolSize; i++)
+        {
+            SpawnFood();
         }
     }
 
-    // Hàm spawn thức ăn mới
-    private void SpawnNewFood()
+    // Hàm spawn food
+    public void SpawnFood()
     {
-        GameObject food = Instantiate(foodPrefab);
-        food.transform.position = GetRandomPosition();
-        food.SetActive(true);
-        foodPool.Add(food);
+        // Lấy một food không hoạt động từ pool
+        GameObject food = GetInactiveFood();
+        if (food != null)
+        {
+            food.transform.position = GetRandomPosition();  // Đặt vị trí ngẫu nhiên cho food
+            food.SetActive(true);  // Kích hoạt food
+        }
     }
 
-    // Hàm làm thức ăn xuất hiện lại
-    public void RespawnFood(GameObject food)
+    // Hàm lấy food không hoạt động trong pool
+    private GameObject GetInactiveFood()
     {
-        food.SetActive(false); // Tắt thức ăn cũ
-        food.transform.position = GetRandomPosition(); // Di chuyển đến vị trí mới
-        food.SetActive(true); // Bật lại thức ăn
+        foreach (var food in foodPool)
+        {
+            if (!food.activeInHierarchy)  // Nếu food không hoạt động thì trả về
+            {
+                return food;
+            }
+        }
+
+        // Nếu không có food không hoạt động, tạo mới một food và thêm vào pool
+        GameObject newFood = Instantiate(foodPrefab);
+        newFood.SetActive(false);  // Tắt food mới và thêm vào pool
+        foodPool.Add(newFood);
+        return newFood;
     }
 
-    // Hàm tìm vị trí ngẫu nhiên cho thức ăn
+    // Hàm reset lại tất cả các food trong pool
+    public void ResetFood()
+    {
+        Debug.Log(foodPool.Count);
+        // Tắt active tất cả các food hiện có trong scene
+        GameObject[] allFoods = GameObject.FindGameObjectsWithTag("Food");
+        foreach (GameObject food in allFoods)
+        {
+            if (food != null)
+            {
+                food.SetActive(false);
+            }
+        }
+
+        // Nếu số lượng food trong pool lớn hơn initialPoolSize, xóa bớt
+        while (foodPool.Count > initialPoolSize)
+        {
+            GameObject foodToRemove = foodPool[foodPool.Count - 1]; // Lấy food cuối cùng
+            foodPool.RemoveAt(foodPool.Count - 1); // Xóa khỏi danh sách
+            if (foodToRemove != null)
+            {
+                Destroy(foodToRemove); // Xóa GameObject thừa
+            }
+        }
+
+        // Đảm bảo pool có đủ initialPoolSize phần tử
+        while (foodPool.Count < initialPoolSize)
+        {
+            GameObject newFood = Instantiate(foodPrefab);
+            newFood.SetActive(false);
+            foodPool.Add(newFood);
+        }
+
+        // Spawn lại tất cả food trong pool với vị trí mới
+        foreach (GameObject food in foodPool)
+        {
+            if (food != null)
+            {
+                food.transform.position = GetRandomPosition();
+                food.SetActive(true);
+            }
+        }
+
+        Debug.Log("Food pool size after reset: " + foodPool.Count);
+    }
+
+    // Tạo vị trí ngẫu nhiên cho food
     private Vector3 GetRandomPosition()
     {
         float x = Random.Range(spawnAreaMin.x, spawnAreaMax.x);
@@ -43,47 +112,29 @@ public class FoodSpawner : MonoBehaviour
         return new Vector3(x, 0.25f, z);
     }
 
-    /// <summary>
-    /// Tạo thức ăn dọc theo vị trí của các phần thân
-    /// </summary>
-    public void CreateFoodFromBodyParts(List<GameObject> bodyParts)
+    // Respawn food khi bị ăn
+    public void RespawnFood(GameObject food)
     {
-        // Kiểm tra nếu danh sách không rỗng
+        food.SetActive(false);  // Tắt food sau khi ăn
+        food.transform.position = GetRandomPosition();  // Đặt lại vị trí ngẫu nhiên
+        food.SetActive(true);  // Kích hoạt lại food
+    }
+
+    // Tạo food từ các phần thân đã chết
+    /*public void CreateFoodFromBodyParts(List<GameObject> bodyParts)
+    {
         if (bodyParts.Count == 0) return;
+        int foodCount = Mathf.CeilToInt(bodyParts.Count * 0.5f);
 
-        // Tạo thức ăn dọc theo chiều dài của cơ thể (50% chiều dài)
-        int foodCount = Mathf.CeilToInt(bodyParts.Count * 0.5f); // Tạo thức ăn bằng 50% chiều dài cơ thể
-        
-        // Tạo thức ăn tại các vị trí trong danh sách phần thân
         for (int i = 0; i < foodCount; i++)
         {
-            // Lấy vị trí ngẫu nhiên trong các phần thân
             int index = Random.Range(0, bodyParts.Count);
-            
             Vector3 foodPosition = bodyParts[index].transform.position;
-            
-            // Tạo thức ăn tại vị trí đó
+            foodPosition.y = 0.25f;
             GameObject food = Instantiate(foodPrefab, foodPosition, Quaternion.identity);
-            foodPool.Add(food);
-            food.tag = "Food"; // Gán tag cho thức ăn
-        }
-    }
 
-    public void ResetFood()
-    {
-        // Tắt tất cả thức ăn hiện tại
-        foreach (var food in foodPool)
-        {
-            Destroy(food);
+            foodPool.Add(food);// thêm food vừa tạo vào food pool để quản lý
+            food.tag = "Food"; // thêm tag "Food" cho food mới được tạo
         }
-        foodPool.Clear();  // Xóa danh sách thức ăn cũ
-
-        // Tạo lại thức ăn mới
-        for (int i = 0; i < foodCount; i++)
-        {
-            SpawnNewFood();
-        }
-    }
-
+    }*/
 }
-
