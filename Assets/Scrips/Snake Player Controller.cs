@@ -122,10 +122,13 @@ public class SnakePlayerController : Snake
                 Destroy(body);
             }
         }
+
+        // tạo thức ăn theo phần thân sau khi chết
         /*if (foodSpawner != null)
         {
             foodSpawner.CreateFoodFromBodyParts(bodyParts);
         }*/
+
         bodyParts.Clear();
         positionHistory.Clear();
         if (gameOverCanvas != null)
@@ -157,7 +160,6 @@ public class SnakePlayerController : Snake
         }
         score = 0;
         ApplyScale(baseScale); // Reset scale về baseScale
-        gap = 20; // Reset gap về giá trị ban đầu
 
         // Load và áp dụng tổ hợp material riêng cho rắn player
         LoadAndApplyMaterials();
@@ -167,7 +169,8 @@ public class SnakePlayerController : Snake
         {
             Grow();
         }
-        LoadAndApplyMaterials(); // Đảm bảo áp dụng lại sau khi grow
+
+        LoadAndApplyMaterials(); // Đảm bảo áp dụng lại sau khi tạo phần thân dài ra
     }
 
     public new void Grow()
@@ -176,11 +179,11 @@ public class SnakePlayerController : Snake
         body.transform.position = bodyParts.Count > 0 ? bodyParts[bodyParts.Count - 1].transform.position : head.transform.position;
         body.tag = "SnakeBody";
 
-        // Áp dụng material cho phần thân mới theo thứ tự trong materialSequence, với quy tắc đặc biệt cho body 1
+        // Áp dụng material cho phần thân mới theo thứ tự trong materialSequence
         Renderer bodyRenderer = body.GetComponent<Renderer>();
         if (bodyRenderer != null && materialSequence.Count > 0)
         {
-            if (bodyParts.Count == 0) // Body 1 (phần thân đầu tiên)
+            if (bodyParts.Count == 0) // phần thân đầu tiên
             {
                 if (materialSequence.Count >= 2)
                 {
@@ -197,10 +200,9 @@ public class SnakePlayerController : Snake
                 bodyRenderer.material = materialSequence[materialIndex];
             }
         }
-
-        // Áp dụng scale cho phần thân mới (được xử lý trong IncreaseSize())
         bodyParts.Add(body);
 
+        // Áp dụng scale cho phần thân mới
         IncreaseSize();
     }
 
@@ -222,13 +224,12 @@ public class SnakePlayerController : Snake
                 }
                 else
                 {
-                    Debug.LogError($"Material {materialName} not found in Resources/Materials!");
+                    Debug.LogError($"Material {materialName} không tìm thấy trung thư mục kia ");
                 }
             }
         }
         else
         {
-            Debug.LogWarning("No materials found in PlayerPrefs for PlayerMaterialSequence!");
             // Sử dụng material mặc định nếu danh sách rỗng
             Material defaultMaterial = Resources.Load<Material>("Materials/DefaultMaterial");
             if (defaultMaterial != null)
@@ -237,7 +238,7 @@ public class SnakePlayerController : Snake
             }
             else
             {
-                Debug.LogError("DefaultMaterial not found in Resources/Materials!");
+                Debug.LogError("Không tìm thấy cả material mặc định trong thư mục kia");
             }
         }
 
@@ -250,7 +251,7 @@ public class SnakePlayerController : Snake
                 headRenderer.material = materialSequence[0]; // Head dùng material đầu tiên
             }
 
-            // Áp dụng cho bodyParts, với quy tắc đặc biệt cho body 1
+            // giống trong grow nhưng không kiểm tra xem nếu chỉ có 1 màu
             for (int i = 0; i < bodyParts.Count; i++)
             {
                 if (bodyParts[i] != null)
@@ -258,7 +259,7 @@ public class SnakePlayerController : Snake
                     Renderer bodyRenderer = bodyParts[i].GetComponent<Renderer>();
                     if (bodyRenderer != null)
                     {
-                        if (i == 0 && materialSequence.Count >= 2) // Body 1 (phần thân đầu tiên)
+                        if (i == 0 && materialSequence.Count >= 2) // phần thân đầu tiên
                         {
                             bodyRenderer.material = materialSequence[1]; // Dùng màu thứ hai nếu có ít nhất 2 màu
                         }
@@ -273,6 +274,7 @@ public class SnakePlayerController : Snake
         }
     }
 
+    // Tên của player trên bảng xếp hạng
     public string GetPlayerName()
     {
         return "YOU";

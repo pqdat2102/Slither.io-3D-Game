@@ -1856,7 +1856,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1224339565286848583, guid: 0aadb32724d9fef419b2bdcec71f8280, type: 3}
       propertyPath: initialPoolSize
-      value: 5
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1665595144164196055, guid: 0aadb32724d9fef419b2bdcec71f8280, type: 3}
       propertyPath: m_LocalPosition.x

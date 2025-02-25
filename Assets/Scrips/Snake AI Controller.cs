@@ -50,6 +50,7 @@ public class SnakeAIController : Snake
         }
     }
 
+    // di chuyển AI về thức ăn hoặc cho nó đi linh tinh
     protected override void Move()
     {
         Vector3 newPosition = head.transform.position + head.transform.forward * moveSpeed * Time.deltaTime;
