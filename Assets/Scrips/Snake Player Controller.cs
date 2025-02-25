@@ -122,10 +122,10 @@ public class SnakePlayerController : Snake
                 Destroy(body);
             }
         }
-        if (foodSpawner != null)
+        /*if (foodSpawner != null)
         {
             foodSpawner.CreateFoodFromBodyParts(bodyParts);
-        }
+        }*/
         bodyParts.Clear();
         positionHistory.Clear();
         if (gameOverCanvas != null)
